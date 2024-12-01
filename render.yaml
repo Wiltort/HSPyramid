@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn referal_app.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: "gunicorn referal_app.referal_app.wsgi:application"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: referal_app.settings
