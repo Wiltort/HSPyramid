@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+</head>
+<body>
+    <h1>Профиль пользователя</h1>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <p><strong>Номер телефона:</strong> {{ profile.phone_number }}</p>
+    <p><strong>Код приглашения:</strong> {{ profile.invite_code }}</p>
+    <p><strong>Пригласивший:</strong> 
+        {% if profile.referred_by %}
+            {{ profile.referred_by.phone_number }}
+        {% else %}
+            Нет
+        {% endif %}
+    </p>
+    <h2>Рефералы:</h2>
+    <ul>
+        {% for referral in profile.referrals %}
+            <li>{{ referral.phone_number }}</li>
+        {% empty %}
+            <li>Нет рефералов</li>
+        {% endfor %}
+    </ul>
+    <h2>Активировать код приглашения</h2>
+    <form method="post" action="{% url 'profile_template' %}">
+        {% csrf_token %}
+        <label for="invite_code">Код приглашения:</label>
+        <input type="text" id="invite_code" name="invite_code" required>
+        <button type="submit">Активировать</button>
+    </form>
+</body>
+</html>

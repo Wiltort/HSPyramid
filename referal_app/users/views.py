@@ -4,10 +4,14 @@ from rest_framework.authtoken.models import Token
 from .models import UserProfile, Verification
 from .serializers import UserProfileSerializer
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
+from django.views import View
+from django.urls import reverse
 from django.db import transaction
 from rest_framework.permissions import IsAuthenticated
 import time
+import requests
+from django.conf import settings
 
 
 class RegisterView(APIView):
@@ -88,27 +92,116 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
                     if user.referred_by is not None:
                         return Response(
                             {"error": "The user has already activated the invite code"},
-                            status=status.HTTP_400_BAD_REQUEST
+                            status=status.HTTP_400_BAD_REQUEST,
                         )
                     if inviter == user:
                         return Response(
                             {"error": "Self-invitation is not allowed"},
-                            status=status.HTTP_400_BAD_REQUEST
+                            status=status.HTTP_400_BAD_REQUEST,
                         )
                     user.referred_by = inviter
                     inviter.referrals.add(user)
                     inviter.save()
                     user.save()
                     return Response(
-                        UserProfileSerializer(user).data,
-                        status=status.HTTP_200_OK
+                        UserProfileSerializer(user).data, status=status.HTTP_200_OK
                     )
             except UserProfile.DoesNotExist:
                 return Response(
-                    {"error": "Invalid invite code"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    {"error": "Invalid invite code"}, status=status.HTTP_400_BAD_REQUEST
                 )
         return Response(
-            {"error": "Invite code is required"},
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "Invite code is required"}, status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class RegisterTemplateView(View):
+    def get(self, request):
+        return render(request, "register.html")
+
+    def post(self, request):
+        phone_number = request.POST.get("phone_number")
+        if phone_number:
+            url = f"{settings.API_HOST}{reverse('register')}"
+            response = requests.post(url, json={'phone_number': phone_number},)
+            if response.status_code == 200:
+                message = response.json().get("message")
+                return redirect(
+                    f'{reverse("verification_template")}?message={message}&phone_number={phone_number}'
+                )
+            else:
+                error_message = response.json().get("error")
+                return render(request, "register.html", {"error": error_message})
+        return render(request, "register.html", {"error": "Phone number is required"})
+
+
+class VerificationTemplateView(View):
+    def get(self, request):
+        message = request.GET.get('message', '')
+        phone_number = request.GET.get('phone_number', '')
+        return render(request, 'verification.html', {'message': message, 'phone_number': phone_number})
+
+    def post(self, request):
+        verification_code = request.POST.get('verification_code')
+        phone_number = request.POST.get('phone_number')
+        if not verification_code:
+            return render(request, 'verification.html', {'error': 'The code is required'})
+        url = f"{settings.API_HOST}{reverse('verify')}"
+        response = requests.post(url, json={
+            'phone_number': phone_number,
+            'verification_code': verification_code
+        })
+        if response.status_code == 200:
+            # Handle successful verification
+            token = response.json().get('token')
+            request.session['auth_token'] = token
+            return redirect(reverse('profile_template'))
+        else:
+            # Handle errors
+            error_message = response.json().get('error', 'Invalid verification code')
+            return render(request, 'verification.html', {'error': error_message})
+        
+
+class UserProfileTemplateView(View):
+    def get(self, request):
+        token = request.session.get('auth_token')
+        if not token:
+            return redirect(reverse('verification_template'))
+        url = f"{settings.API_HOST}{reverse('profile')}"
+        headers = {
+            'Authorization': f'Token {token}'
+        }
+        # Make a GET request to the profile API
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            # Handle successful retrieval of profile data
+            profile_data = response.json()
+            return render(request, 'profile.html', {'profile': profile_data})
+        else:
+            # Handle errors
+            error_message = response.json().get('error', 'Failed to retrieve profile data')
+            return render(request, 'profile.html', {'error': error_message})
+        
+    def post(self, request):
+        token = request.session.get('auth_token')
+        if not token:
+            return redirect(reverse('verification_template'))
+        
+        invite_code = request.POST.get('invite_code')
+        if invite_code:
+            url = f"{settings.API_HOST}{reverse('profile')}"
+            headers = {
+                'Authorization': f'Token {token}'
+            }
+            response = requests.put(url, json={'invite_code': invite_code}, headers=headers)
+
+            if response.status_code == 200:
+                message = "Invite code activated successfully."
+                profile_data = response.json()
+                return render(request, 'profile.html', {'profile': profile_data, 'message': message})
+            else:
+                error_message = response.json().get('error', 'Failed to activate invite code')
+                return render(request, 'profile.html', {'error': error_message})
+        else:
+            return render(request, 'profile.html', {'error': 'Invite code is required'})
