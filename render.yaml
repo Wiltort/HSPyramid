@@ -3,11 +3,10 @@ services:
     name: referal-app
     env: python
     plan: free
-    buildCommand: ""
-    startCommand: gunicorn referal_app.wsgi:application
+    buildCommand: "poetry install"
+    startCommand: "poetry run gunicorn referal_app.wsgi:application"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: referal_app.settings
       - key: SECRET_KEY
         sync: false
-      
