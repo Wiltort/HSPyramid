@@ -10,12 +10,4 @@ services:
         value: referal_app.settings
       - key: SECRET_KEY
         sync: false
-      - key: DATABASE_URL
-        fromDatabase:
-          name: referal-app-db
-          property: connectionString
-
-  - type: database
-    name: referal-app-db
-    plan: free
-    postgresVersion: 13
+      
