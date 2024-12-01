@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     buildCommand: "pip install -r requirements.txt && cd referal_app && python3 manage.py makemigrations && python3 manage.py migrate"
-    startCommand: "cd referal_app && gunicorn referal_app.wsgi:application"
+    startCommand: "cd referal_app && gunicorn referal_app.wsgi:application --timeout 120"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: referal_app.settings
