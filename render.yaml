@@ -3,8 +3,8 @@ services:
     name: referal-app
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: "gunicorn referal_app/wsgi.py:application"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn referal_app.wsgi:application"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: referal_app.settings
