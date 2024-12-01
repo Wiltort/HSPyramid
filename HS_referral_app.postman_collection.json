@@ -609,7 +609,7 @@
 			]
 		},
 		{
-			"name": "profile 2",
+			"name": "http://127.0.0.1:8000/api/v1/profile/",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -618,7 +618,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Token a2c1b1f9d2d86fe7d2aad296c02d6e62a791aea4",
+						"value": "Token b08e0460159897b053f00f0f46b456b869a61ef8",
 						"type": "text"
 					}
 				],
@@ -642,7 +642,7 @@
 			},
 			"response": [
 				{
-					"name": "profile",
+					"name": "http://127.0.0.1:8000/api/v1/profile/",
 					"originalRequest": {
 						"method": "GET",
 						"header": [
@@ -676,7 +676,7 @@
 					"header": [
 						{
 							"key": "Date",
-							"value": "Sun, 01 Dec 2024 06:14:58 GMT"
+							"value": "Sun, 01 Dec 2024 07:45:53 GMT"
 						},
 						{
 							"key": "Server",
@@ -700,7 +700,7 @@
 						},
 						{
 							"key": "Content-Length",
-							"value": "104"
+							"value": "137"
 						},
 						{
 							"key": "X-Content-Type-Options",
@@ -716,10 +716,45 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"phone_number\": \"123456\",\n    \"invite_code\": \"TOk0NI\",\n    \"referred_by\": {\n        \"phone_number\": \"3454678\"\n    },\n    \"referrals\": []\n}"
+					"body": "{\n    \"phone_number\": \"123456\",\n    \"invite_code\": \"TOk0NI\",\n    \"referred_by\": {\n        \"phone_number\": \"3454678\"\n    },\n    \"referrals\": [],\n    \"activated_invite_code\": \"F9SACE\"\n}"
+				}
+			]
+		},
+		{
+			"name": "http://127.0.0.1:8000/api/v1/profile/",
+			"request": {
+				"auth": {
+					"type": "noauth"
 				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Token a2c1b1f9d2d86fe7d2aad296c02d6e62a791aea4",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/profile/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"profile",
+						""
+					]
+				}
+			},
+			"response": [
 				{
-					"name": "profile 2",
+					"name": "http://127.0.0.1:8000/api/v1/profile/",
 					"originalRequest": {
 						"method": "GET",
 						"header": [
@@ -753,7 +788,7 @@
 					"header": [
 						{
 							"key": "Date",
-							"value": "Sun, 01 Dec 2024 06:43:45 GMT"
+							"value": "Sun, 01 Dec 2024 08:07:30 GMT"
 						},
 						{
 							"key": "Server",
@@ -777,7 +812,7 @@
 						},
 						{
 							"key": "Content-Length",
-							"value": "188"
+							"value": "217"
 						},
 						{
 							"key": "X-Content-Type-Options",
@@ -793,7 +828,7 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"phone_number\": \"3454678\",\n    \"invite_code\": \"F9SACE\",\n    \"referred_by\": null,\n    \"referrals\": [\n        {\n            \"phone_number\": \"12345\"\n        },\n        {\n            \"phone_number\": \"123456\"\n        },\n        {\n            \"phone_number\": \"1234567\"\n        },\n        {\n            \"phone_number\": \"12345678\"\n        }\n    ]\n}"
+					"body": "{\n    \"phone_number\": \"3454678\",\n    \"invite_code\": \"F9SACE\",\n    \"referred_by\": null,\n    \"referrals\": [\n        {\n            \"phone_number\": \"12345\"\n        },\n        {\n            \"phone_number\": \"123456\"\n        },\n        {\n            \"phone_number\": \"1234567\"\n        },\n        {\n            \"phone_number\": \"12345678\"\n        }\n    ],\n    \"activated_invite_code\": null\n}"
 				}
 			]
 		}
