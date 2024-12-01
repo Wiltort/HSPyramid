@@ -14,7 +14,8 @@ services:
         fromDatabase:
           name: referal-app-db
           property: connectionString
-    databases:
-      - name: referal-app-db
-        plan: free
-        postgresVersion: 13
+
+  - type: database
+    name: referal-app-db
+    plan: free
+    postgresVersion: 13
