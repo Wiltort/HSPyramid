@@ -28,9 +28,12 @@ class RegisterView(APIView):
             )
         # Делаем вид, что послали код верификации
         time.sleep(2)
-        verification, created = Verification.objects.get_or_create(
-            phone_number=phone_number
-        )
+        try:
+            verification, created = Verification.objects.get_or_create(
+                phone_number=phone_number
+            )
+        except:
+            return Response("error": "Database is not connected")
         if not created:
             # Если уже были попытки подтвердить номер, верификация есть в базе
             verification.save()
