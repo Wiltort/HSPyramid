@@ -33,7 +33,7 @@ class RegisterView(APIView):
                 phone_number=phone_number
             )
         except:
-            return Response("error": "Database is not connected")
+            return Response({"error": "Database is not connected"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         if not created:
             # Если уже были попытки подтвердить номер, верификация есть в базе
             verification.save()
