@@ -124,7 +124,7 @@ class RegisterTemplateView(View):
         if phone_number:
             url = f"{settings.API_HOST}{reverse('register')}"
             headers = {
-                "Content-Type": "application/json"\
+                "Content-Type": "application/json"
             }
             payload = {
                 "phone_number": phone_number
