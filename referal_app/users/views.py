@@ -123,7 +123,13 @@ class RegisterTemplateView(View):
         phone_number = request.POST.get("phone_number")
         if phone_number:
             url = f"{settings.API_HOST}{reverse('register')}"
-            response = requests.post(url, json={'phone_number': phone_number},)
+            headers = {
+                "Content-Type": "application/json"\
+            }
+            payload = {
+                "phone_number": phone_number
+            }
+            response = requests.post(url, json=payload, headers=headers)
             if response.status_code == 200:
                 message = response.json().get("message")
                 return redirect(
