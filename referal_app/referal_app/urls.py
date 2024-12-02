@@ -22,7 +22,7 @@ from users.views import RegisterTemplateView, VerificationTemplateView, UserProf
 urlpatterns = [
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('api/v1/', include('users.urls')),
-    path('login/', RegisterTemplateView.as_view(), name='register_template'),
+    path('', RegisterTemplateView.as_view(), name='register_template'),
     path('verify/', VerificationTemplateView.as_view(), name='verification_template'),
     path('profile/', UserProfileTemplateView.as_view(), name='profile_template'),
 ]
