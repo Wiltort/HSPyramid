@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'users',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -140,6 +141,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 AUTH_USER_MODEL = 'users.UserProfile'
@@ -151,3 +153,10 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Referal_app API',                               
+    'DESCRIPTION': 'API для регистрации, пользователей и получения информации о профиле',
+    'VERSION': '1.0.0',                                           
+    'SERVE_INCLUDE_SCHEMA': True,                                
+}

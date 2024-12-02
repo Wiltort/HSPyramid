@@ -18,6 +18,7 @@ Including another URLconf
 from django.urls import path, include
 from rest_framework.authtoken.views import obtain_auth_token
 from users.views import RegisterTemplateView, VerificationTemplateView, UserProfileTemplateView
+from drf_spectacular.views import SpectacularRedocView, SpectacularAPIView
 
 urlpatterns = [
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
@@ -25,4 +26,5 @@ urlpatterns = [
     path('', RegisterTemplateView.as_view(), name='register_template'),
     path('verify/', VerificationTemplateView.as_view(), name='verification_template'),
     path('profile/', UserProfileTemplateView.as_view(), name='profile_template'),
-]
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),]
