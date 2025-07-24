@@ -19,6 +19,6 @@ services:
     plan: free
 databases:
   - name: hs-db
-  - plan: free
+    plan: free
     
       
