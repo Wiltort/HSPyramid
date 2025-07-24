@@ -10,7 +10,7 @@ services:
       python3 manage.py collectstatic --noinput
     startCommand: |
       cd referal_app
-      gunicorn referal_app.wsgi:application --bind 0.0.0.0: $PORT
+      gunicorn referal_app.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: referal_app.settings
