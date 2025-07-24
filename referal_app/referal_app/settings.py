@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['referal-app-mb97.onrender.com/', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['referal-app-mb97.onrender.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -149,7 +149,7 @@ AUTH_USER_MODEL = 'users.UserProfile'
 API_HOST = config('API_HOST', default='http://127.0.0.1:8000')
 
 CORS_ALLOWED_ORIGINS = [
-    "https://referal-app-mb97.onrender.com/",
+    "https://referal-app-mb97.onrender.com",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
