@@ -146,7 +146,7 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = 'users.UserProfile'
 
-API_HOST = config('API_HOST', default='http://127.0.0.1:8000')
+API_HOST = config('API_HOST', default='https://referal-app-mb97.onrender.com')
 
 CORS_ALLOWED_ORIGINS = [
     "https://referal-app-mb97.onrender.com",
