@@ -125,7 +125,8 @@ class RegisterTemplateView(View):
     def post(self, request):
         phone_number = request.POST.get("phone_number")
         if phone_number:
-            url = f"http://127.0.0.1:{os.environ.get('PORT', 8000)}{reverse('register')}"            headers = {
+            url = f"http://127.0.0.1:{os.environ.get('PORT', 8000)}{reverse('register')}"
+            headers = {
                 "Content-Type": "application/json"
             }
             payload = {
