@@ -8,6 +8,7 @@ services:
       python3 manage.py makemigrations
       python3 manage.py migrate
       python3 manage.py collectstatic --noinput
+      python3 manage.py dbshell
     startCommand: |
       cd referal_app
       gunicorn referal_app.wsgi:application --bind 0.0.0.0:$PORT
