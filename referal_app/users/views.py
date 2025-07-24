@@ -125,14 +125,16 @@ class RegisterTemplateView(View):
     def post(self, request):
         phone_number = request.POST.get("phone_number")
         if phone_number:
-            url = f"{settings.API_HOST}{reverse('register')}"
-            headers = {
+            url = f"http://127.0.0.1:{os.environ.get('PORT', 8000)}{reverse('register')}"            headers = {
                 "Content-Type": "application/json"
             }
             payload = {
                 "phone_number": phone_number
             }
-            response = requests.post(url, json=payload, headers=headers)
+            try:
+                response = requests.post(url, json=payload, headers=headers)
+            except Exception as e:
+                return render(request, "register.html", {"error": str(e)})
             if response.status_code == 200:
                 message = response.json().get("message")
                 return redirect(
