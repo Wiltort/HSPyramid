@@ -51,6 +51,6 @@ class Verification(models.Model):
     code = models.CharField(max_length=4, blank=True)
 
     def save(self, *args, **kwargs):
-        self.code = "".join(random.choices(string.ascii_letters + string.digits, k=6))
+        self.code = "".join(random.choices(string.digits, k=4))
         # тут нужно добавить отправку СМС с кодом
         super().save(*args, **kwargs)
