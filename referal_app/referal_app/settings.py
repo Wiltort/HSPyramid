@@ -148,10 +148,6 @@ AUTH_USER_MODEL = 'users.UserProfile'
 
 API_HOST = config('API_HOST', default='https://referal-app-mb97.onrender.com')
 
-CORS_ALLOWED_ORIGINS = [
-    "https://referal-app-mb97.onrender.com",
-]
-
 CORS_ALLOW_ALL_ORIGINS = True
 
 SPECTACULAR_SETTINGS = {
