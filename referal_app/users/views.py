@@ -3,79 +3,48 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import UserProfile, Verification
-from .serializers import UserProfileSerializer
+from .serializers import UserProfileSerializer, RegisterSerializer, VerificationSerializer
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404, render, redirect
-from django.views import View
-from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from django.db import transaction
 from rest_framework.permissions import IsAuthenticated
 import time
-import requests
-from django.conf import settings
 
 
 class RegisterView(APIView):
     """
     Регистрация / вход по номеру телефона
     """
+    serializer_class = RegisterSerializer
 
     def post(self, request):
-        phone_number = request.data.get("phone_number")
-        if not phone_number:
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            verification = serializer.save()
+            time.sleep(2) # имитация отправки кода
             return Response(
-                {"error": "Phone number is required"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"message": f"Verification code sent - {verification.code}"},
+                # После добавления отправки СМС убрать код отсюда!
+                status=status.HTTP_200_OK,
             )
-        # Делаем вид, что послали код верификации
-        time.sleep(2)
-        try:
-            verification, created = Verification.objects.get_or_create(
-                phone_number=phone_number
-            )
-        except:
-            return Response({"error": "Database is not connected"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        if not created:
-            # Если уже были попытки подтвердить номер, верификация есть в базе
-            verification.save()
-        return Response(
-            {"message": f"Verification code sent - {verification.code}"},
-            status=status.HTTP_200_OK,
-        )
-
-    # После добавления отправки СМС убрать код
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CustomAuthToken(APIView):
+    serializer_class = VerificationSerializer
     def post(self, request):
         """
         Ввод кода подтверждения
         """
-        phone_number = request.data.get("phone_number")
-        verification_code = request.data.get("verification_code")
-        if not phone_number:
-            return Response(
-                {"error": "Phone number is required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        verification = get_object_or_404(Verification, phone_number=phone_number)
-        if not verification_code:
-            return Response(
-                {"error": "verification_code is required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if verification_code == verification.code:
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            phone_number = serializer.validated_data["phone_number"]
             user = UserProfile.objects.filter(phone_number=phone_number).first()
             if not user:
                 user = UserProfile.objects.create_user(phone_number=phone_number)
-                user.save()
             token, _ = Token.objects.get_or_create(user=user)
             return Response({"token": token.key}, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {"error": "Invalid verification code"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
@@ -117,109 +86,3 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         return Response(
             {"error": "Invite code is required"}, status=status.HTTP_400_BAD_REQUEST
         )
-
-
-class RegisterTemplateView(View):
-    template_name = "register.html"
-    
-    def get(self, request):
-        return render(request, self.template_name)
-
-    def post(self, request):
-        phone_number = request.POST.get("phone_number")
-        if not phone_number:
-            return render(request, self.template_name, {"error": "Введите номер телефона"})
-        port = os.environ.get("PORT", 8000)
-        url = f"http://127.0.0.1:{port}{reverse('register')}"
-        headers = {
-            "Content-Type": "application/json"
-        }
-        payload = {
-            "phone_number": phone_number
-        }
-        try:
-            response = requests.post(url, json=payload, headers=headers)
-            print("API response:", response.status_code, response.text)
-        except Exception as e:
-            return render(request, "register.html", {"error": str(e)})
-        if response.status_code == 200:
-            message = response.json().get("message")
-            return redirect(
-                f'{reverse("verification_template")}?message={message}&phone_number={phone_number}'
-            )
-        else:
-            error_message = response.json().get("error")
-            return render(request, "register.html", {"error": error_message})
-        return render(request, "register.html", {"error": "Phone number is required"})
-
-
-class VerificationTemplateView(View):
-    def get(self, request):
-        message = request.GET.get('message', '')
-        phone_number = request.GET.get('phone_number', '')
-        return render(request, 'verification.html', {'message': message, 'phone_number': phone_number})
-
-    def post(self, request):
-        verification_code = request.POST.get('verification_code')
-        phone_number = request.POST.get('phone_number')
-        if not verification_code:
-            return render(request, 'verification.html', {'error': 'The code is required'})
-        url = f"{settings.API_HOST}{reverse('verify')}"
-        response = requests.post(url, json={
-            'phone_number': phone_number,
-            'verification_code': verification_code
-        })
-        if response.status_code == 200:
-            # Handle successful verification
-            token = response.json().get('token')
-            request.session['auth_token'] = token
-            return redirect(reverse('profile_template'))
-        else:
-            # Handle errors
-            error_message = response.json().get('error', 'Invalid verification code')
-            return render(request, 'verification.html', {'error': error_message})
-        
-
-class UserProfileTemplateView(View):
-    def get(self, request):
-        token = request.session.get('auth_token')
-        if not token:
-            return redirect(reverse('verification_template'))
-        url = f"{settings.API_HOST}{reverse('profile')}"
-        headers = {
-            'Authorization': f'Token {token}'
-        }
-        # Make a GET request to the profile API
-        response = requests.get(url, headers=headers)
-
-        if response.status_code == 200:
-            # Handle successful retrieval of profile data
-            profile_data = response.json()
-            return render(request, 'profile.html', {'profile': profile_data})
-        else:
-            # Handle errors
-            error_message = response.json().get('error', 'Failed to retrieve profile data')
-            return render(request, 'profile.html', {'error': error_message})
-        
-    def post(self, request):
-        token = request.session.get('auth_token')
-        if not token:
-            return redirect(reverse('verification_template'))
-        
-        invite_code = request.POST.get('invite_code')
-        if invite_code:
-            url = f"{settings.API_HOST}{reverse('profile')}"
-            headers = {
-                'Authorization': f'Token {token}'
-            }
-            response = requests.put(url, json={'invite_code': invite_code}, headers=headers)
-
-            if response.status_code == 200:
-                message = "Invite code activated successfully."
-                profile_data = response.json()
-                return render(request, 'profile.html', {'profile': profile_data, 'message': message})
-            else:
-                error_message = response.json().get('error', 'Failed to activate invite code')
-                return render(request, 'profile.html', {'error': error_message})
-        else:
-            return render(request, 'profile.html', {'error': 'Invite code is required'})
