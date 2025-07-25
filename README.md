@@ -51,3 +51,8 @@ API использует аутентификацию на основе токе
 
 ## Коллекция постман
 https://www.postman.com/supply-astronomer-52192175/referal-app-wiltort/collection/bfmsqqx/hs-referral-app?action=share&creator=34125031 
+
+## Деплой
+Развернуто на render.com по ссылке
+https://referal-app-mb97.onrender.com/ 
+(На бесплатном плане сервис засыпает через 15 мин, первый запрос может обрабатываться несколько минут)
