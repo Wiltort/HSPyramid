@@ -129,25 +129,28 @@ class RegisterTemplateView(View):
         phone_number = request.POST.get("phone_number")
         if not phone_number:
             return render(request, self.template_name, {"error": "Введите номер телефона"})
-
-        # Прямая работа с моделью Verification вместо self-запроса
-        from django.db import DatabaseError
-        import time
-
+        port = os.environ.get("PORT", 8000)
+        url = f"http://127.0.0.1:{port}{reverse('register')}"
+        headers = {
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "phone_number": phone_number
+        }
         try:
-            time.sleep(2)  # имитируем отправку SMS
-            verification, created = Verification.objects.get_or_create(phone_number=phone_number)
-            if not created:
-                verification.save()  # обновляем код
-            message = f"Verification code sent - {verification.code}"
+            response = requests.post(url, json=payload, headers=headers)
+            print("API response:", response.status_code, response.text)
+        except Exception as e:
+            return render(request, "register.html", {"error": str(e)})
+        if response.status_code == 200:
+            message = response.json().get("message")
             return redirect(
                 f'{reverse("verification_template")}?message={message}&phone_number={phone_number}'
             )
-        except DatabaseError:
-            return render(request, self.template_name, {"error": "Ошибка подключения к базе данных"})
-        except Exception as e:
-            return render(request, self.template_name, {"error": str(e)})
-
+        else:
+            error_message = response.json().get("error")
+            return render(request, "register.html", {"error": error_message})
+        return render(request, "register.html", {"error": "Phone number is required"})
 
 
 class VerificationTemplateView(View):
